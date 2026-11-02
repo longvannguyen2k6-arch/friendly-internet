@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block title %}My plans – Friendly Internet{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="container">
+    <h1>Your registered plans</h1>
+    <p>Memberships found for this email address.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container medium">
+    <div class="stack">
+      {% for member in records %}
+      {% set plan = plans.get(member.plan_id) %}
+      <article class="panel">
+        <div class="member-head">
+          <h3>Membership <span class="mono">{{ member.membership_id }}</span></h3>
+          <span class="muted small">{{ 'Age-restricted' if member.age_restricted else 'Active' }}</span>
+        </div>
+        <div class="cols">
+          <dl>
+            <div class="detail"><dt>Customer</dt><dd>{{ member.full_name }}</dd></div>
+            <div class="detail"><dt>Email</dt><dd>{{ member.email }}</dd></div>
+            <div class="detail"><dt>Age</dt><dd>{{ member.age }}</dd></div>
+            <div class="detail"><dt>Phone</dt><dd>{{ member.phone_number or 'Not provided' }}</dd></div>
+          </dl>
+          <dl>
+            <div class="detail">
+              <dt>Plan</dt>
+              <dd>
+                {% if plan %}{{ plan.provider }} {{ plan.type_of_plan }}{% else %}#{{ member.plan_id }}{% endif %}
+              </dd>
+            </div>
+            {% if plan and plan.phone %}
+            <div class="detail"><dt>Phone</dt><dd>{{ plan.phone }}</dd></div>
+            {% endif %}
+            <div class="detail"><dt>Monthly price</dt><dd>{{ plan.price_per_month | gbp if plan else '–' }}</dd></div>
+            <div class="detail"><dt>Spend cap</dt><dd>{{ member.spend_cap | gbp if member.spend_cap is not none else '–' }}</dd></div>
+          </dl>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="actions mt">
+      <a class="btn" href="{{ url_for('membership_lookup') }}">Search another email</a>
+      <a class="btn btn-ghost" href="{{ url_for('base') }}">Back to home</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

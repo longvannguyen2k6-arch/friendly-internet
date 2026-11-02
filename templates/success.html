@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block title %}Order confirmed – Friendly Internet{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="container">
+    <h1>Welcome aboard</h1>
+    <p>Your order has been confirmed.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container narrow">
+    <div class="panel center">
+      <p class="muted">Your membership ID. Keep it safe.</p>
+      <p class="member-id mono" id="member-id">{{ membership_id }}</p>
+      <p><button type="button" class="btn btn-ghost" data-copy="#member-id" hidden>Copy ID</button></p>
+    </div>
+
+    {% if plan %}
+    <div class="panel mt">
+      <h2>Your plan</h2>
+      <dl>
+        <div class="detail"><dt>Provider</dt><dd>{{ plan.provider }}</dd></div>
+        <div class="detail"><dt>Plan</dt><dd>{{ plan.type_of_plan }}</dd></div>
+        {% if payment_summary %}
+        <div class="detail"><dt>Payment method</dt><dd>{{ payment_summary }}</dd></div>
+        {% endif %}
+        <div class="detail total"><dt>Monthly cost</dt><dd>{{ plan.price_per_month | gbp }}</dd></div>
+      </dl>
+    </div>
+    {% endif %}
+
+    <div class="actions mt">
+      <a class="btn" href="{{ url_for('membership_lookup') }}">View my account</a>
+      <a class="btn btn-ghost" href="{{ url_for('base') }}">Back to home</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

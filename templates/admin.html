@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block title %}Admin – Friendly Internet{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="container">
+    <h1>Admin dashboard</h1>
+    <p>{{ accounts | length }} accounts · {{ memberships | length }} memberships</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <h2>Registered accounts</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Username</th><th>Email</th><th>Phone</th><th>Role</th></tr>
+        </thead>
+        <tbody>
+          {% for acc in accounts %}
+          <tr>
+            <td>{{ acc.username }}</td>
+            <td>{{ acc.email }}</td>
+            <td>{{ acc.phone_number or '–' }}</td>
+            <td>{{ 'Admin' if acc.is_admin else 'Customer' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty">No accounts found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="mt">Memberships</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Membership ID</th><th>Name</th><th>Email</th>
+            <th class="num">Age</th><th class="num">Plan ID</th><th class="num">Spend cap</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for mem in memberships %}
+          <tr>
+            <td class="mono">{{ mem.membership_id }}</td>
+            <td>{{ mem.full_name }}</td>
+            <td>{{ mem.email }}</td>
+            <td class="num">{{ mem.age }}</td>
+            <td class="num">{{ mem.plan_id }}</td>
+            <td class="num">{{ mem.spend_cap | gbp if mem.spend_cap is not none else '–' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="empty">No memberships found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

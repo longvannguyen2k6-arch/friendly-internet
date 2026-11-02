@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block title %}Sign up – Friendly Internet{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="container">
+    <h1>Sign up</h1>
+    <p>Create an account to order a plan.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container narrow">
+    <p class="notice">
+      Customers under 18 get a £10 per month spending cap and are placed in
+      the age-restricted group.
+    </p>
+
+    {% if error %}<div class="alert" role="alert">{{ error }}</div>{% endif %}
+    {% set f = form or {} %}
+
+    <form action="{{ url_for('register') }}" method="POST" class="panel">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div class="field">
+        <label for="username">Username <span class="req">*</span></label>
+        <input type="text" id="username" name="username" value="{{ f.get('username', '') }}" autocomplete="username" required />
+      </div>
+
+      <div class="field">
+        <label for="email">Email address <span class="req">*</span></label>
+        <input type="email" id="email" name="email" value="{{ f.get('email', '') }}" autocomplete="email" required />
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" name="phone_number" value="{{ f.get('phone_number', '') }}" placeholder="+44 7700 900000" autocomplete="tel" />
+      </div>
+
+      <div class="field">
+        <label for="age">Age <span class="req">*</span></label>
+        <input type="number" id="age" name="age" value="{{ f.get('age', '') }}" min="1" max="120" required />
+      </div>
+
+      <div class="field">
+        <label for="password">Password <span class="req">*</span></label>
+        <div class="with-toggle">
+          <input type="password" id="password" name="password" minlength="8" autocomplete="new-password" required />
+          <button type="button" class="toggle-pw" data-toggle-password="#password">Show</button>
+        </div>
+        <div class="strength" data-strength-for="#password" hidden>
+          <div class="strength-bar"><span></span></div>
+          <ul class="strength-rules">
+            <li data-rule="length">8+ characters</li>
+            <li data-rule="upper">A capital letter</li>
+            <li data-rule="digit">A number</li>
+          </ul>
+        </div>
+        <span class="hint">At least 8 characters, with a capital letter and a number.</span>
+      </div>
+
+      <div class="field">
+        <label for="confirm_password">Confirm password <span class="req">*</span></label>
+        <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required />
+        <span class="hint" data-match-for="#password" data-match-with="#confirm_password" hidden></span>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input type="checkbox" name="terms" required />
+          <span>I agree to the terms and conditions and privacy policy.</span>
+        </label>
+      </div>
+
+      <button class="btn btn-block" type="submit">Create account</button>
+    </form>
+
+    <p class="center muted mt">
+      Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+    </p>
+  </div>
+</section>
+{% endblock %}

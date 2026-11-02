@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+{% block title %}Review your plan – Friendly Internet{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="container">
+    <h1>Review your plan</h1>
+    <p>Check the details below and choose how you would like to pay.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container narrow">
+    {% if error %}<div class="alert" role="alert">{{ error }}</div>{% endif %}
+
+    <div class="panel">
+      <h2>Order summary</h2>
+      {% if plan %}
+      <dl>
+        <div class="detail"><dt>Provider</dt><dd>{{ plan.provider }}</dd></div>
+        <div class="detail"><dt>Plan</dt><dd>{{ plan.type_of_plan }}</dd></div>
+        {% if plan.data_label or plan.unlimited %}
+        <div class="detail"><dt>Data</dt><dd>{{ 'Unlimited' if plan.unlimited else plan.data_label }}</dd></div>
+        {% endif %}
+        {% if plan.calls_texts %}
+        <div class="detail"><dt>Calls and texts</dt><dd>{{ plan.calls_texts | calls }}</dd></div>
+        {% endif %}
+        <div class="detail"><dt>Phone</dt><dd>{{ plan.phone if plan.phone else 'SIM only' }}</dd></div>
+        <div class="detail"><dt>Contract</dt><dd>2 years</dd></div>
+        <div class="detail total"><dt>Monthly cost</dt><dd>{{ plan.price_per_month | gbp }}</dd></div>
+      </dl>
+
+      {% if age and age < 18 %}
+      <p class="notice mt">
+        Because the account holder is under 18, a <strong>£10 per month
+        spending cap</strong> will be applied.
+      </p>
+      {% endif %}
+      {% else %}
+      <p class="alert">No plan details found.</p>
+      {% endif %}
+    </div>
+
+    {% if plan %}
+    {% set f = form or {} %}
+    {% set pm = f.get('payment_method', 'card') %}
+    <form action="{{ url_for('confirmation') }}" method="POST" class="panel mt" id="payment-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <input type="hidden" name="confirm_payment" value="true" />
+
+      <h2>Payment method</h2>
+      <div class="options payment-options" role="radiogroup" aria-label="Payment method">
+        <label class="option">
+          <input type="radio" name="payment_method" value="card" {% if pm == 'card' %}checked{% endif %} required />
+          <strong>Debit or credit card</strong>
+          <small>Visa, Mastercard, Amex</small>
+        </label>
+        <label class="option">
+          <input type="radio" name="payment_method" value="apple_pay" {% if pm == 'apple_pay' %}checked{% endif %} />
+          <strong>Apple Pay</strong>
+          <small>Fast checkout with Apple Pay</small>
+        </label>
+      </div>
+
+      <div id="card-fields" class="card-fields mt" {% if pm == 'apple_pay' %}hidden{% endif %}>
+        <div class="field">
+          <label for="card_name">Name on card <span class="req">*</span></label>
+          <input type="text" id="card_name" name="card_name" value="{{ f.get('card_name', '') }}"
+                 placeholder="J. Smith" autocomplete="cc-name" data-card-input required />
+        </div>
+
+        <div class="field">
+          <label for="card_number">Card number <span class="req">*</span></label>
+          <input type="text" id="card_number" name="card_number" value="{{ f.get('card_number', '') }}"
+                 placeholder="1234 5678 9012 3456" inputmode="numeric" maxlength="19"
+                 autocomplete="cc-number" data-card-input data-format-card required />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="card_expiry">Expiry (MM/YY) <span class="req">*</span></label>
+            <input type="text" id="card_expiry" name="card_expiry" value="{{ f.get('card_expiry', '') }}"
+                   placeholder="MM/YY" inputmode="numeric" maxlength="5"
+                   autocomplete="cc-exp" data-card-input data-format-expiry required />
+          </div>
+          <div class="field">
+            <label for="card_cvc">CVC <span class="req">*</span></label>
+            <input type="text" id="card_cvc" name="card_cvc" value="{{ f.get('card_cvc', '') }}"
+                   placeholder="123" inputmode="numeric" maxlength="4"
+                   autocomplete="cc-csc" data-card-input data-format-cvc required />
+          </div>
+        </div>
+      </div>
+
+      <p id="apple-pay-note" class="muted small mt" {% if pm != 'apple_pay' %}hidden{% endif %}>
+        You will authorise {{ plan.price_per_month | gbp }}/month with Apple Pay when you click below.
+      </p>
+
+      <button type="submit" class="btn btn-block mt" id="pay-submit-btn"
+              data-card-label="Confirm and pay {{ plan.price_per_month | gbp }}"
+              data-apple-label="Pay {{ plan.price_per_month | gbp }} with Apple Pay">
+        {% if pm == 'apple_pay' %}Pay {{ plan.price_per_month | gbp }} with Apple Pay{% else %}Confirm and pay {{ plan.price_per_month | gbp }}{% endif %}
+      </button>
+    </form>
+
+    <p class="center mt"><a href="{{ url_for('view_plans') }}">Choose a different plan</a></p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

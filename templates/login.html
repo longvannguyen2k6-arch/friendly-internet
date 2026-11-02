@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block title %}Log in – Friendly Internet{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="container">
+    <h1>Log in</h1>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container narrow">
+    {% if error %}<div class="alert" role="alert">{{ error }}</div>{% endif %}
+
+    <form action="{{ url_for('login') }}" method="POST" class="panel">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div class="field">
+        <label for="login_id">Username or email</label>
+        <input type="text" id="login_id" name="login_id" autocomplete="username" required />
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="with-toggle">
+          <input type="password" id="password" name="password" autocomplete="current-password" required />
+          <button type="button" class="toggle-pw" data-toggle-password="#password">Show</button>
+        </div>
+        <span class="hint"><a href="{{ url_for('forgot_password') }}">Forgot your password?</a></span>
+      </div>
+
+      <button class="btn btn-block" type="submit">Log in</button>
+    </form>
+
+    <p class="center muted mt">
+      No account yet? <a href="{{ url_for('register') }}">Sign up</a>
+    </p>
+  </div>
+</section>
+{% endblock %}

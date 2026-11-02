@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block title %}{{ title or 'Something went wrong' }} – Friendly Internet{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container narrow center">
+    {% if code %}<p class="muted">Error {{ code }}</p>{% endif %}
+    <h1>{{ title or 'Something went wrong' }}</h1>
+    <p class="muted">
+      {{ message or 'An unexpected error occurred. Please try again or go back to the home page.' }}
+    </p>
+    <div class="actions">
+      <a class="btn" href="{{ url_for('base') }}">Back to home</a>
+      <a class="btn btn-ghost" href="{{ url_for('view_plans') }}">View plans</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

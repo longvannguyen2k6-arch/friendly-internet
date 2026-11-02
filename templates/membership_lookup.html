@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}My account – Friendly Internet{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="container">
+    <h1>My account</h1>
+    <p>Enter your email to see your registered plans.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container narrow">
+    {% if error_msg %}<div class="alert" role="alert">{{ error_msg }}</div>{% endif %}
+
+    <form action="{{ url_for('membership_lookup') }}" method="POST" class="panel">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div class="field">
+        <label for="email">Email address <span class="req">*</span></label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required />
+      </div>
+      <button class="btn btn-block" type="submit">Find my plans</button>
+    </form>
+
+    <p class="center mt"><a href="{{ url_for('base') }}">Back to home</a></p>
+  </div>
+</section>
+{% endblock %}

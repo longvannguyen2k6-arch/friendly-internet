@@ -1,0 +1,132 @@
+{% extends "layout.html" %}
+{% block title %}Friendly Internet – Mobile plans{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <h1>Mobile plans from Fone, Gap and Flipper</h1>
+      <p>
+        One company, three networks. Compare every plan, sign up online and
+        manage your membership in one place.
+      </p>
+      <div class="actions">
+        <a class="btn" href="{{ url_for('recommend') }}">Find my plan</a>
+        <a class="btn btn-ghost" href="{{ url_for('view_plans') }}">View all plans</a>
+      </div>
+    </div>
+    {% if providers %}
+    <aside class="snapshot" aria-label="Cheapest plans">
+      <h2>Cheapest SIM-only plan</h2>
+      <ul>
+        {% for provider, plans in providers.items() %}
+        <li class="prov-{{ provider | lower }}">
+          <strong>{{ provider }}</strong>
+          <span class="price" data-count-to="{{ plans[0].price_per_month }}">{{ plans[0].price_per_month | gbp }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </aside>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2>SIM-only plans</h2>
+    <p class="muted">Prices per month, 2-year contract.</p>
+
+    {% if providers %}
+    <div class="grid grid-3">
+      {% for provider, plans in providers.items() %}
+      <article class="panel prov-{{ provider | lower }}" data-reveal>
+        <h3>{{ provider }}</h3>
+        <p class="muted small">
+          From {{ (plans | map(attribute='price_per_month') | min) | gbp }} a month
+        </p>
+        <table class="mini-table">
+          {% for p in plans %}
+          <tr>
+            <td>{{ p.type_of_plan }}</td>
+            <td class="muted">{{ 'Unlimited' if p.unlimited else (p.data_label or '') }}</td>
+            <td class="num">{{ p.price_per_month | gbp }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <a class="btn btn-ghost btn-block" href="{{ url_for('view_plans', provider=provider|lower) }}">
+          View {{ provider }} plans
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">Plans are temporarily unavailable. Please try again soon.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container medium">
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li>
+        <strong>Choose a plan</strong>
+        Use <a href="{{ url_for('recommend') }}">Find my plan</a> or browse
+        <a href="{{ url_for('view_plans') }}">all plans</a>.
+      </li>
+      <li>
+        <strong>Create an account</strong>
+        <a href="{{ url_for('register') }}">Sign up</a> with your details.
+      </li>
+      <li>
+        <strong>Confirm your order</strong>
+        Review the plan and you will get a membership ID such as
+        <span class="mono">FI-123456</span>.
+      </li>
+      <li>
+        <strong>Receive your SIM</strong>
+        Your SIM (and phone, if included) arrives in 3–5 working days.
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container medium">
+    <h2>Questions</h2>
+    <details>
+      <summary>What is the difference between Fone, Gap and Flipper?</summary>
+      <p>
+        All three are run by Friendly Internet. Fone is the classic network,
+        Gap has unlimited data options and Flipper has the lowest prices.
+      </p>
+    </details>
+    <details>
+      <summary>How long is the contract?</summary>
+      <p>All plans are on a 2-year contract.</p>
+    </details>
+    <details>
+      <summary>What happens if I am under 18?</summary>
+      <p>
+        A £10 per month spending cap is applied and the account is marked as
+        age-restricted.
+      </p>
+    </details>
+    <details>
+      <summary>Can I get a phone with my plan?</summary>
+      <p>
+        Yes. "All-in" plans include a handset and there are "Just phone"
+        options too. Available models: iPhone 14 Pro, iPhone 14, iPhone 13,
+        Samsung S22 and Samsung S21.
+      </p>
+    </details>
+    <details>
+      <summary>How do I see my plans after signing up?</summary>
+      <p>
+        Open <a href="{{ url_for('membership_lookup') }}">My account</a>. If you
+        are logged in your memberships are shown straight away.
+      </p>
+    </details>
+  </div>
+</section>
+{% endblock %}

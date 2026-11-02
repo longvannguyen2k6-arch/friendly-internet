@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+{% block title %}All plans – Friendly Internet{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="container">
+    <h1>All plans</h1>
+    <p>Compare every plan across Fone, Gap and Flipper.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    {% if plans %}
+    <div class="filters" role="group" aria-label="Filter by provider">
+      <button type="button" class="filter-btn active" data-filter="all">All providers</button>
+      {% for provider in plans | map(attribute='provider') | unique %}
+      <button type="button" class="filter-btn" data-filter="{{ provider | lower }}">{{ provider }}</button>
+      {% endfor %}
+    </div>
+
+    <div class="toolbar" hidden data-toolbar>
+      <label>Sort by
+        <select id="sort-plans">
+          <option value="default">Default</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+        </select>
+      </label>
+      <label>Max price: <output id="price-out"></output>
+        <input type="range" id="max-price" min="0" max="100" step="1" value="100" />
+      </label>
+      <label class="check"><input type="checkbox" id="sim-only" /> SIM only</label>
+      <span class="muted small" id="plan-count" aria-live="polite"></span>
+    </div>
+
+    <div class="plans-grid">
+      {% for plan in plans %}
+      <article class="panel plan prov-{{ plan.provider | lower }}" data-provider="{{ plan.provider | lower }}"
+               data-price="{{ plan.price_per_month }}" data-sim="{{ 0 if plan.phone else 1 }}" data-order="{{ loop.index }}">
+        <p class="plan-provider">{{ plan.provider }}</p>
+        <h3>{{ plan.type_of_plan }}{% if plan.phone %} – {{ plan.phone }}{% endif %}</h3>
+        <p class="plan-price">{{ plan.price_per_month | gbp }}<span>/month</span></p>
+        <ul class="plan-features">
+          {% if plan.unlimited %}<li>Unlimited data</li>
+          {% elif plan.data_label %}<li>{{ plan.data_label }} data</li>{% endif %}
+          {% if plan.calls_texts %}<li>{{ plan.calls_texts | calls }}</li>{% endif %}
+          <li>{{ 'Handset included' if plan.phone else 'SIM only' }}</li>
+        </ul>
+        <form action="{{ url_for('confirmation') }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <input type="hidden" name="plan_id" value="{{ plan.plan_ID }}" />
+          <button type="submit" class="btn btn-block">Select this plan</button>
+        </form>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">No plans available right now.</p>
+    {% endif %}
+  </div>
+</section>
+
+{% if sim_table %}
+<section class="section section-alt">
+  <div class="container">
+    <h2>SIM-only comparison</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Plan</th>
+            {% for provider in sim_providers %}<th class="prov-{{ provider | lower }}">{{ provider }}</th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for plan_type, row in sim_table %}
+          <tr>
+            <th scope="row">{{ plan_type }}</th>
+            {% for provider in sim_providers %}
+            {% set p = row.get(provider) %}
+            <td>
+              {% if p %}{{ p.price_per_month | gbp }}/mo ·
+              {{ 'Unlimited' if p.unlimited else p.data_label }}{% else %}–{% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="container center">
+    <h2>Not sure which one to pick?</h2>
+    <p class="muted">Answer a few questions and we will suggest a plan.</p>
+    <a class="btn" href="{{ url_for('recommend') }}">Find my plan</a>
+  </div>
+</section>
+{% endblock %}

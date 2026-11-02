@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Friendly Internet{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    {% set ep = request.endpoint %}
+    <header class="site-header">
+      <div class="container bar">
+        <a class="brand" href="{{ url_for('base') }}">Friendly Internet</a>
+        <nav aria-label="Main">
+          <ul class="nav-links">
+            <li><a href="{{ url_for('base') }}" {% if ep == 'base' %}aria-current="page"{% endif %}>Home</a></li>
+            <li><a href="{{ url_for('view_plans') }}" {% if ep == 'view_plans' %}aria-current="page"{% endif %}>Plans</a></li>
+            <li><a href="{{ url_for('recommend') }}" {% if ep == 'recommend' %}aria-current="page"{% endif %}>Find my plan</a></li>
+            <li><a href="{{ url_for('membership_lookup') }}" {% if ep in ('membership_lookup', 'membership_result') %}aria-current="page"{% endif %}>My account</a></li>
+            {% if session.get('username') %}
+            {% if is_admin %}<li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>{% endif %}
+            <li class="nav-user">{{ session['username'] }}</li>
+            <li><a href="{{ url_for('logout') }}">Log out</a></li>
+            {% else %}
+            <li><a href="{{ url_for('login') }}" {% if ep == 'login' %}aria-current="page"{% endif %}>Log in</a></li>
+            <li><a class="btn" href="{{ url_for('register') }}">Sign up</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <div class="container flash">
+        {% for message in messages %}<div class="notice alert-ok" role="status">{{ message }}</div>{% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <h4>Friendly Internet</h4>
+            <p>Fone, Gap and Flipper mobile plans in the UK.</p>
+          </div>
+          <div>
+            <h4>Networks</h4>
+            <ul>
+              <li><a href="{{ url_for('view_plans', provider='fone') }}">Fone</a></li>
+              <li><a href="{{ url_for('view_plans', provider='gap') }}">Gap</a></li>
+              <li><a href="{{ url_for('view_plans', provider='flipper') }}">Flipper</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Account</h4>
+            <ul>
+              <li><a href="{{ url_for('register') }}">Sign up</a></li>
+              <li><a href="{{ url_for('login') }}">Log in</a></li>
+              <li><a href="{{ url_for('membership_lookup') }}">My account</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">© 2026 Friendly Internet. All rights reserved.</div>
+      </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+  </body>
+</html>

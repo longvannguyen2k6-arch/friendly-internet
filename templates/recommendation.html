@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+{% block title %}Find my plan – Friendly Internet{% endblock %}
+
+{% macro option(name, value, label, desc='', required=False) %}
+<label class="option">
+  <input type="radio" name="{{ name }}" value="{{ value }}" {% if required %}required{% endif %} />
+  <strong>{{ label }}</strong>
+  {% if desc %}<small>{{ desc }}</small>{% endif %}
+</label>
+{% endmacro %}
+
+{% block content %}
+<div class="page-head">
+  <div class="container">
+    <h1>Find my plan</h1>
+    <p>Answer four questions and we will match you to a plan.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container medium">
+    {% if session.get('age') and session.get('age') < 18 %}
+    <p class="notice">
+      You are under 18, so we only show plans up to £15 a month. Your answers
+      below are not needed.
+    </p>
+    {% endif %}
+
+    <form action="{{ url_for('recommend') }}#results" method="POST" class="panel">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div class="quiz-step">
+        <h2>1. Which network do you prefer?</h2>
+        <div class="options">
+          {{ option('provider', 'Fone', 'Fone', 'Reliable coverage nationwide', True) }}
+          {{ option('provider', 'Gap', 'Gap', 'Great value and flexibility') }}
+          {{ option('provider', 'Flipper', 'Flipper', 'Fast speeds, lowest prices') }}
+        </div>
+      </div>
+
+      <div class="quiz-step">
+        <h2>2. How much data do you use each month?</h2>
+        <div class="options">
+          {{ option('data_amount', '1.0', '1 GB', 'Light browsing and messaging', True) }}
+          {{ option('data_amount', '2.0', '2 GB', 'Basic social media') }}
+          {{ option('data_amount', '5.0', '5 GB', 'Occasional video') }}
+          {{ option('data_amount', '10.0', '10 GB', 'Heavy daily use') }}
+        </div>
+      </div>
+
+      <div class="quiz-step">
+        <h2>3. Do you want a phone included?</h2>
+        <div class="options">
+          {{ option('phone_required', 'yes', 'Yes, include a phone', '', True) }}
+          {{ option('phone_required', 'no', 'No, SIM only', 'I already have a phone') }}
+        </div>
+        <p class="hint mt">If yes, which models would you consider?</p>
+        <div class="sub-options" id="phone-models">
+          {% for model in ['iPhone 14 Pro', 'iPhone 14', 'iPhone 13', 'Samsung S22', 'Samsung S21'] %}
+          <label class="check">
+            <input type="checkbox" name="phone_models" value="{{ model }}" /> {{ model }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="quiz-step">
+        <h2>4. What is your maximum monthly budget?</h2>
+        <div class="options">
+          {{ option('maximum_budget', '10.0', 'Under £10', '', True) }}
+          {{ option('maximum_budget', '20.0', 'Under £20') }}
+          {{ option('maximum_budget', '40.0', 'Under £40') }}
+          {{ option('maximum_budget', '100.0', 'Under £100', 'Includes phone contracts') }}
+        </div>
+      </div>
+
+      <button class="btn" type="submit">Show recommendations</button>
+    </form>
+
+    {% if recommended_plans is not none %}
+    <div id="results" class="mt">
+      <h2>Recommended plans</h2>
+      {% if recommended_plans %}
+      <div class="plans-grid">
+        {% for plan in recommended_plans %}
+        <article class="panel plan prov-{{ plan.provider | lower }}">
+          <p class="plan-provider">{{ plan.provider }}</p>
+          <h3>{{ plan.type_of_plan }}</h3>
+          <p class="plan-price">{{ plan.price_per_month | gbp }}<span>/month</span></p>
+          <ul class="plan-features">
+            {% if plan.unlimited %}<li>Unlimited data</li>
+            {% elif plan.data_label %}<li>{{ plan.data_label }} data</li>{% endif %}
+            {% if plan.calls_texts %}<li>{{ plan.calls_texts | calls }}</li>{% endif %}
+            <li>{{ plan.phone if plan.phone else 'SIM only' }}</li>
+          </ul>
+          <form action="{{ url_for('confirmation') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" name="plan_id" value="{{ plan.plan_ID }}" />
+            <button type="submit" class="btn btn-block">Select this plan</button>
+          </form>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="alert">
+        No plan matches those answers. Try a higher budget or a different
+        provider.
+      </p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
