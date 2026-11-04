@@ -11,12 +11,10 @@ Base = declarative_base()
 
 
 def utcnow():
-    """Naive UTC timestamp (MySQL DATETIME has no timezone)."""
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def _money(precision, scale=2):
-    # asdecimal=False keeps plain floats, so templates/comparisons behave as before
     return Numeric(precision, scale, asdecimal=False)
 
 
@@ -87,10 +85,6 @@ class account(Base):
 
 
 class PasswordReset(Base):
-    """One-time code e-mailed to a user who forgot their password.
-
-    Only a hash of the code is stored, so a database leak does not expose it.
-    """
     __tablename__ = 'password_resets'
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(Integer, ForeignKey('accounts.account_id', ondelete='CASCADE'), nullable=False, index=True)
